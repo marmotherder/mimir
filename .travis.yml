@@ -18,7 +18,7 @@ install: true
 
 script:
   - go test mimir/clients
-  - docker build --build-arg GOPATH=${GOPATH} -t marmotherder/mimir:latest .
+  - docker build -t marmotherder/mimir:latest .
 
 deploy:
   provider: script
