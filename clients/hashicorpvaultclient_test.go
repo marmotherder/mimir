@@ -2,6 +2,7 @@ package clients
 
 import (
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -34,16 +35,21 @@ func TestLoadVaultSecretsAtPath(t *testing.T) {
 	}
 
 	results := make([]*Secret, 0)
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
 	go func() {
 		for secret := range c {
 			results = append(results, secret)
 		}
+		wg.Done()
 	}()
 
 	loadVaultSecretsAtPath(c, "mock", data)
 	close(c)
 
+	wg.Wait()
+
 	if len(results) != 2 {
-		t.Error("Expected secret cound did not match")
+		t.Error("Expected secret count did not match")
 	}
 }

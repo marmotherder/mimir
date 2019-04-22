@@ -1,6 +1,7 @@
 package clients
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -35,14 +36,19 @@ func TestBuildSecretFromAWSSecretValue(t *testing.T) {
 	}
 
 	results := make([]*Secret, 0)
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
 	go func() {
 		for secret := range sc {
 			results = append(results, secret)
 		}
+		wg.Done()
 	}()
 
 	buildSecretFromAWSSecretValue(sc, awsSecretValue, "mockns1/mock1+mockns2/mock1", "mockns1", "mockns2")
 	close(sc)
+
+	wg.Wait()
 
 	if len(results) < 2 {
 		t.Error("Did not get all expected secrets back")
