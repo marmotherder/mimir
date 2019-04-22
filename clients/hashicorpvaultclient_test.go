@@ -50,6 +50,6 @@ func TestLoadVaultSecretsAtPath(t *testing.T) {
 	wg.Wait()
 
 	if len(results) != 2 {
-		t.Error("Expected secret cound did not match")
+		t.Error("Expected secret count did not match")
 	}
 }
