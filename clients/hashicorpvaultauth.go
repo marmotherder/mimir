@@ -7,16 +7,19 @@ import (
 	"github.com/hashicorp/vault/api"
 )
 
+// HashicorpVaultAuth interface provides a common function set to authenticate Hashicorp Vault
 type HashicorpVaultAuth interface {
 	GetToken(client *api.Client) error
 }
 
+// HashicorpVaultK8SAuth contains auth information for using kubernetes authentication method
 type HashicorpVaultK8SAuth struct {
 	IsPod      bool
 	Role       string
-	ConfigPath *string
+	ConfigPath string
 }
 
+// GetToken retrieves a valid Hashicorp Vault token via kubernetes authentication method for integrating with the vault
 func (auth HashicorpVaultK8SAuth) GetToken(client *api.Client) error {
 	if auth.Role == "" {
 		return errors.New("No valid vault role provided")
@@ -29,7 +32,7 @@ func (auth HashicorpVaultK8SAuth) GetToken(client *api.Client) error {
 		}
 	}
 	if token == "" {
-		config, err := getRestConfig(auth.IsPod, *auth.ConfigPath)
+		config, err := getRestConfig(auth.IsPod, auth.ConfigPath)
 		if err != nil {
 			return err
 		}
@@ -47,10 +50,12 @@ func (auth HashicorpVaultK8SAuth) GetToken(client *api.Client) error {
 	return nil
 }
 
+// HashicorpVaultTokenAuth contains auth information for using a pre-provided token to authenticate
 type HashicorpVaultTokenAuth struct {
 	Token string
 }
 
+// GetToken retrieves the pre-provided token
 func (auth HashicorpVaultTokenAuth) GetToken(client *api.Client) error {
 	if auth.Token == "" {
 		return errors.New("No valid vault token set")
@@ -59,11 +64,13 @@ func (auth HashicorpVaultTokenAuth) GetToken(client *api.Client) error {
 	return nil
 }
 
+// HashicorpVaultApproleAuth contains auth information for using the approle auth method
 type HashicorpVaultApproleAuth struct {
 	RoleID   string
 	SecretID string
 }
 
+// GetToken retrieves a valid Hashicorp Vault token via approle authentication method for integrating with the vault
 func (auth HashicorpVaultApproleAuth) GetToken(client *api.Client) error {
 	if auth.RoleID == "" {
 		return errors.New("No valid role id set")

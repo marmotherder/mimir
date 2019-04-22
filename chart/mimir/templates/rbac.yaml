@@ -1,0 +1,24 @@
+{{- if .Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1beta1" }}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+{{- else if .Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1alpha1" }}
+apiVersion: rbac.authorization.k8s.io/v1alpha1
+{{- else }}
+apiVersion: rbac.authorization.k8s.io/v1
+{{- end }}
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "mimir.fullname" . }}
+  labels:
+    app: {{ include "mimir.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Values.rbacRoleRef }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "mimir.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+    

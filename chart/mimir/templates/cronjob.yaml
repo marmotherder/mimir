@@ -1,0 +1,81 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ include "mimir.fullname" . }}
+  labels:
+    app: {{ include "mimir.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  schedule: {{ .Values.job.sechedule | quote }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          restartPolicy: {{ quote .Values.job.restartPolicy }}
+          pullPolicy: {{ .Values.image.pullPolicy }}
+          serviceAccountName: {{ include "mimir.fullname" . }}
+          {{- if .Values.hashicorpVault.enabled }}
+          - name: {{ include "mimir.fullname" . }}-hashicorpvault
+            image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+            args:
+            - -i
+            - -b
+            - hashicorpvault
+            - -a
+            - {{ .Values.hashicorpVault.auth }}
+            - -u
+            - {{ .Values.hashicorpVault.url }}
+            - -m
+            - {{ .Values.hashicorpVault.mount }}
+            {{- if .Values.hashicorpVault.path }}
+            - -p
+            - {{ .Values.hashicorpVault.path }}
+            {{- end }}
+            {{- if .Values.hashicorpVault.role }}
+            - -r
+            - {{ .Values.hashicorpVault.role }}
+            {{- end }}
+            {{- if .Values.hashicorpVault.roleid }}
+            - -r
+            - {{ .Values.hashicorpVault.roleid }}
+            {{- end }}
+            {{- if .Values.hashicorpVault.secretid }}
+            - -s
+            - {{ .Values.hashicorpVault.secretid }}
+            {{- end }}
+            {{- if .Values.hashicorpVault.token }}
+            - -t
+            - {{ .Values.hashicorpVault.token }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.aws.enabled }}
+          - name: {{ include "mimir.fullname" . }}-hashicorpvault
+            image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+            args:
+            - -i
+            - -b
+            - aws
+            - -a
+            - {{ .Values.aws.auth }}
+            - -r
+            - {{ .Values.aws.region }}
+            {{- if .Values.aws.accesskey }}
+            - -e
+            - {{ .Values.aws.accesskey }}
+            {{- end }}
+            {{- if .Values.aws.secretkey }}
+            - -s
+            - {{ .Values.aws.secretkey }}
+            {{- end }}
+            {{- if .Values.aws.path }}
+            - -p
+            - {{ .Values.aws.path }}
+            {{- end }}
+            {{- if .Values.aws.profile }}
+            - -f
+            - {{ .Values.aws.profile }}
+            {{- end }}
+          {{- end }}

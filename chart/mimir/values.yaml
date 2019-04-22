@@ -1,0 +1,22 @@
+rbacRoleRef: cluster-admin
+
+job:
+  schedule: "*/5 * * * *"
+  restartPolicy: Never
+
+image:
+  repository: marmotherder/mimir
+  tag: latest
+  pullPolicy: IfNotPresent
+
+hashicorpVault:
+  enabled: false
+  url: http://vault-vault:8200
+  auth: k8s
+  mount: secret
+  role: reader
+
+aws:
+  enabled: false
+  region: eu-west-1
+  auth: iam
