@@ -14,11 +14,11 @@ go:
 git:
   depth: 1
 
-install: true
+install: false
 
 script:
+  - go build 
   - go test mimir/clients
-  - mimir help
   - docker build -t marmotherder/mimir:latest .
 
 deploy:
