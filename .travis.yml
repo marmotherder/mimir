@@ -18,6 +18,7 @@ install: true
 
 script:
   - go test mimir/clients
+  - cp ${GOPATH}/bin/mimir /home/travis/gopath/bin/mimir
   - docker build -t marmotherder/mimir:latest .
 
 deploy:
