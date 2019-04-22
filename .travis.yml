@@ -14,11 +14,11 @@ go:
 git:
   depth: 1
 
-install: true
+install: false
 
 script:
   - go test mimir/clients
-  - cp ${GOPATH}/bin/mimir /home/travis/gopath/bin/mimir
+  - cp mimir /tmp/mimir
   - docker build -t marmotherder/mimir:latest .
 
 deploy:
