@@ -8,15 +8,15 @@ metadata:
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
 spec:
-  schedule: {{ .Values.job.sechedule | quote }}
+  schedule: {{ .Values.job.schedule | quote }}
   jobTemplate:
     spec:
       template:
         spec:
-          containers:
           restartPolicy: {{ quote .Values.job.restartPolicy }}
           pullPolicy: {{ .Values.image.pullPolicy }}
           serviceAccountName: {{ include "mimir.fullname" . }}
+          containers:
           {{- if .Values.hashicorpVault.enabled }}
           - name: {{ include "mimir.fullname" . }}-hashicorpvault
             image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
