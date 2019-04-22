@@ -1,8 +1,18 @@
+dist: xenial
+
 language: go
 
-go: 
-- 1.12
-os:
-- linux
+env:
+  - GO111MODULE=on
+  - GOFLAGS='-mod vendor'
+
+go:
+  - 1.12.x
+
+git:
+  depth: 1
+
+install: false
+
 script:
-- CGO_ENABLED=0 GO111MODULE=on go build
+  - go test
