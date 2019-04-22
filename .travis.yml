@@ -17,4 +17,4 @@ git:
 install: false
 
 script:
-  - go test
+  - go test mimir/clients
