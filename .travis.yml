@@ -18,3 +18,10 @@ install: false
 
 script:
   - go test mimir/clients
+  - docker build -t marmotherder/mimir:latest .
+
+deploy:
+  provider: script
+  script: bash docker_push.sh
+  on:
+    branch: master
