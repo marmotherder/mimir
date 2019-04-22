@@ -14,7 +14,7 @@ go:
 git:
   depth: 1
 
-install: false
+install: true
 
 script:
   - go test mimir/clients
