@@ -5,4 +5,4 @@ go:
 os:
 - linux
 script:
-- env GOOS=linux CGO_ENABLED=0 GO111MODULE=on go build
+- CGO_ENABLED=0 GO111MODULE=on go build
