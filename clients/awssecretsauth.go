@@ -91,7 +91,7 @@ type AWSSharedCredentialsAuth struct {
 func (auth AWSSharedCredentialsAuth) GetConfig() (*aws.Config, error) {
 	path := auth.Path
 	if path == "" {
-		path = fmt.Sprintf("%s/credentials", getHomeDir())
+		path = fmt.Sprintf("%s/.aws/credentials", getHomeDir())
 	}
 	profile := auth.Profile
 	if profile == "" {
