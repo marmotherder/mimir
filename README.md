@@ -1,6 +1,7 @@
 # mimir
 
 [![Build Status](https://travis-ci.org/marmotherder/mimir.svg?branch=master)](https://travis-ci.org/marmotherder/mimir)
+[![Go Report Card](https://goreportcard.com/badge/github.com/marmotherder/mimir)](https://goreportcard.com/report/github.com/marmotherder/mimir)
 
 A commandline based tool for synchronising secrets between kubernetes, and an external hosted secrets management platform
 
