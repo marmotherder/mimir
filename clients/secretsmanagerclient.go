@@ -6,6 +6,7 @@ package clients
 // implement this interface
 type SecretsManagerClient interface {
 	GetSecrets(namespaces ...string) ([]*Secret, error)
+	GetSecret(path string) (*Secret, error)
 }
 
 // Secret is a common struct designed as an intermediary

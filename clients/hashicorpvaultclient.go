@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/hashicorp/vault/api"
@@ -93,6 +94,30 @@ func (client hashicorpVaultClient) GetSecrets(namespaces ...string) ([]*Secret, 
 		secrets = append(secrets, secret)
 	}
 	return secrets, nil
+}
+
+// GetSecret will retrieve a remote secret from Hashicorp Vault
+func (client hashicorpVaultClient) GetSecret(path string) (*Secret, error) {
+	vaultSecret, err := client.Client.Logical().Read(fmt.Sprintf("%s/%s", client.dataPath, path))
+	if err != nil {
+		return nil, err
+	}
+	secretData := make(map[string]string)
+	if data, ok := vaultSecret.Data["data"].(map[string]interface{}); ok {
+		for k, v := range data {
+			if vstr, ok := v.(string); ok {
+				secretData[k] = vstr
+			}
+		}
+	}
+	splitPaths := strings.Split(path, "/")
+	lastPath := len(splitPaths) - 1
+	name := splitPaths[lastPath]
+	namespace := ""
+	if len(splitPaths) > 1 {
+		namespace = strings.Join(splitPaths[:lastPath], "/")
+	}
+	return &Secret{Name: name, Namespace: namespace, Data: secretData}, nil
 }
 
 // listVaultSecrets will retrieve a list of secrets from Hashicorp Vault on the provided paths
