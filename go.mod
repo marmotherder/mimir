@@ -1,4 +1,4 @@
-module mimir
+module github.com/marmotherder/mimir
 
 go 1.12
 
