@@ -73,6 +73,22 @@ func (client awsSecretsClient) GetSecrets(namespaces ...string) ([]*Secret, erro
 	return secrets, nil
 }
 
+// GetSecret will retrieve a remote secret from AWS Secrets Manager
+func (client awsSecretsClient) GetSecret(path string) (*Secret, error) {
+	awsSecretValue, err := client.Client.GetSecretValue(&secretsmanager.GetSecretValueInput{
+		SecretId:     aws.String(path),
+		VersionStage: aws.String("AWSCURRENT"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	secretData, err := buildAWSSecretData(awsSecretValue)
+	if err != nil {
+		return nil, err
+	}
+	return &Secret{Name: path, Data: secretData}, nil
+}
+
 // isManagedAWSSecret determines if an AWS secret is meant to be read by mimir
 func isManagedAWSSecret(tags []*secretsmanager.Tag) (bool, *string) {
 	managed := false
