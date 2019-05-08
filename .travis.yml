@@ -18,7 +18,7 @@ install: false
 
 script:
   - go build 
-  - go test mimir/clients
+  - go test github.com/marmotherder/mimir/clients
   - docker build -t marmotherder/mimir:latest .
 
 deploy:
