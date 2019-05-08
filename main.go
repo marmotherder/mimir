@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"mimir/clients"
+	"github.com/marmotherder/mimir/clients"
 
 	"github.com/jessevdk/go-flags"
 )
