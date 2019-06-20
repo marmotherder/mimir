@@ -14,12 +14,12 @@ spec:
       template:
         spec:
           restartPolicy: {{ quote .Values.job.restartPolicy }}
-          pullPolicy: {{ .Values.image.pullPolicy }}
           serviceAccountName: {{ include "mimir.fullname" . }}
           containers:
           {{- if .Values.hashicorpVault.enabled }}
           - name: {{ include "mimir.fullname" . }}-hashicorpvault
             image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
             args:
             - -i
             - -b
@@ -52,8 +52,9 @@ spec:
             {{- end }}
           {{- end }}
           {{- if .Values.aws.enabled }}
-          - name: {{ include "mimir.fullname" . }}-hashicorpvault
+          - name: {{ include "mimir.fullname" . }}-aws
             image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
             args:
             - -i
             - -b
