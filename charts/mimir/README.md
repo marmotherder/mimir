@@ -54,4 +54,4 @@ Secrets managed in AWS are based on tags. Create secrets in AWS as normal, but t
 | `webhook.failurePolicy`           | The k8s webhook policy to use, `Fail` or `Ignore` are supported                    | `Ignore`                  | yes - if webhook enabled          |
 | `webhook.initImage.repository`    | The repository of the mimir init image                                             | `marmotherder/mimir-init` | yes - if webhook enabled          |
 | `webhook.initImage.tag`           | The image tag                                                                      | `latest`                  | yes - if webhook enabled          |
-| `webhook.pullPolicy`              | Pull policy on the image for hooks                                                 | `IfNotPresent`            | yes - if webhook enabled          |
+| `webhook.initImage.pullPolicy`    | Pull policy on the image for hooks                                                 | `IfNotPresent`            | yes - if webhook enabled          |
