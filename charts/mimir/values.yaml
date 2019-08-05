@@ -12,7 +12,7 @@ webhook:
   initImage:
     repository: marmotherder/mimir-init
     tag: latest
-  pullPolicy: IfNotPresent
+    pullPolicy: IfNotPresent
 
 image:
   repository: marmotherder/mimir
