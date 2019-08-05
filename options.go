@@ -2,9 +2,18 @@ package main
 
 // Options is the common mimir options available
 type Options struct {
-	Backend        string `short:"b" long:"backend" choice:"hashicorpvault" choice:"aws" description:"The secrets manager backend to be used" required:"true"`
-	IsPod          bool   `short:"i" long:"ispod" description:"Is the application being run within a pod?"`
-	KubeconfigPath string `short:"k" long:"kcpath" description:"An absolute path to a valid kube config file"`
+	ServerMode     bool    `short:"o" long:"server" description:"Should the application run as a webserver?"`
+	Backend        string  `short:"b" long:"backend" choice:"hashicorpvault" choice:"aws" description:"The secrets manager backend to be used" required:"true"`
+	IsPod          bool    `short:"i" long:"ispod" description:"Is the application being run within a pod?"`
+	KubeconfigPath *string `short:"k" long:"kcpath" description:"An absolute path to a valid kube config file"`
+}
+
+// ServerOptions is used for the webhook server specific configuration
+type ServerOptions struct {
+	ServerPort  int    `short:"d" long:"port" description:"Port to run the server against" default:"443"`
+	TLSCertPath string `short:"c" long:"cert" description:"Path to the TLS certificate" required:"true"`
+	TLSKeyPath  string `short:"l" long:"key" description:"Path to the TLS key" required:"true"`
+	Hook        string `short:"h" long:"hook" description:"The identifier for this webhook" required:"true"`
 }
 
 // HashiCorpVaultOptions is the base configuration options for Hashicorp Valut
@@ -31,13 +40,13 @@ type HashicorpVaultTokenOptions struct {
 	Token string `short:"t" long:"secretid" description:"The Hashicorp Vault token" required:"true"`
 }
 
-// HashiCorpVaultOptions is the base configuration options for AWS Secrets Manager
+// AWSOptions is the base configuration options for AWS Secrets Manager
 type AWSOptions struct {
 	Authentication string `short:"a" long:"auth" choice:"iam" choice:"static" choice:"env" choice:"shared" description:"Authentication method to use with AWS" required:"true"`
 	Region         string `short:"r" long:"region" description:"The AWS region to connect to" required:"true"`
 }
 
-// HashicorpVaultTokenOptions allows providing the AWS ACCESS_KEY_ID and the AWS SECRET_ACCESS_KEY to AWS Secrets Manager via the CLI
+// AWSCredentialsOptions allows providing the AWS ACCESS_KEY_ID and the AWS SECRET_ACCESS_KEY to AWS Secrets Manager via the CLI
 type AWSCredentialsOptions struct {
 	AccessKeyID     string `short:"e" long:"accesskey" description:"The AWS ACCESS_KEY_ID variable to use" required:"true"`
 	SecretAccessKey string `short:"s" long:"secretkey" description:"The AWS SECRET_ACCESS_KEY variable to use" required:"true"`

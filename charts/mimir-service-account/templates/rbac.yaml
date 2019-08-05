@@ -1,0 +1,53 @@
+{{- if .Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1" }}
+apiVersion: rbac.authorization.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1beta1" }}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+{{- else }}
+apiVersion: rbac.authorization.k8s.io/v1alpha1
+{{- end }}
+kind: ClusterRole
+metadata:
+  name: {{ include "mimir-service-account.fullname" . }}
+  labels:
+    app: {{ include "mimir-service-account.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+rules:
+- apiGroups: ["", "apps", "authorization.k8s.io", "admissionregistration.k8s.io", "batch", "extensions", certificates.k8s.io]
+  resources: ["*"]
+  verbs: ["get", "list", "watch", "create", "delete", "update", "patch"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "mimir-service-account.fullname" . }}
+  labels:
+    app: {{ include "mimir-service-account.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+---
+{{- if .Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1" }}
+apiVersion: rbac.authorization.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1beta1" }}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+{{- else }}
+apiVersion: rbac.authorization.k8s.io/v1alpha1
+{{- end }}
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "mimir-service-account.fullname" . }}
+  labels:
+    app: {{ include "mimir-service-account.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "mimir-service-account.fullname" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "mimir-service-account.fullname" . }}
+  namespace: {{ .Release.Namespace }}

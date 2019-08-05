@@ -1,8 +1,18 @@
-rbacRoleRef: cluster-admin
+# A service account with valid permissions must be installed before this chart
+serviceAccount: mimir-service-account
 
 job:
+  enabled: false
   schedule: "*/5 * * * *"
   restartPolicy: Never
+
+webhook:
+  enabled: false
+  failurePolicy: Ignore
+  initImage:
+    repository: marmotherder/mimir-init
+    tag: latest
+  pullPolicy: IfNotPresent
 
 image:
   repository: marmotherder/mimir

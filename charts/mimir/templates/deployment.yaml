@@ -1,0 +1,180 @@
+{{- if .Values.webhook.enabled }}
+{{- if .Values.hashicorpVault.enabled }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ include "mimir.fullname" . }}-hashicorpvault
+  labels:
+    app: {{ include "mimir.fullname" . }}-hashicorpvault
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ include "mimir.fullname" . }}-hashicorpvault
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+    spec:
+      restartPolicy: Always
+      serviceAccountName: {{ .Values.serviceAccount }}
+      volumes:
+      - name: certs-init
+        configMap:
+          name: {{ include "mimir.fullname" . }}-hashicorpvault
+      - name: certs
+        emptyDir: {}
+      initContainers:
+        - name: mimir-webhook-init
+          image: {{ .Values.webhook.initImage.repository }}:{{ .Values.webhook.initImage.tag }}
+          imagePullPolicy: {{ .Values.webhook.initImage.pullPolicy }}
+          env:
+          - name: RELEASE
+            value: {{ include "mimir.fullname" . }}-hashicorpvault
+          volumeMounts:
+          - name: certs-init
+            mountPath: "/etc/certs/templates"
+            readOnly: true
+          - name: certs
+            mountPath: "/etc/certs/output"
+      containers:
+      {{- if .Values.hashicorpVault.enabled }}
+      - name: {{ include "mimir.fullname" . }}-hook-hashicorpvault
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: RELEASE
+          value: {{ include "mimir.fullname" . }}-hashicorpvault
+        volumeMounts:
+        - name: certs
+          mountPath: "/etc/certs/output"
+          readOnly: true
+        args:
+        - -i
+        - -b
+        - hashicorpvault
+        - -a
+        - {{ .Values.hashicorpVault.auth }}
+        - -u
+        - {{ .Values.hashicorpVault.url }}
+        - -m
+        - {{ .Values.hashicorpVault.mount }}
+        {{- if .Values.hashicorpVault.path }}
+        - -p
+        - {{ .Values.hashicorpVault.path }}
+        {{- end }}
+        {{- if .Values.hashicorpVault.role }}
+        - -r
+        - {{ .Values.hashicorpVault.role }}
+        {{- end }}
+        {{- if .Values.hashicorpVault.roleid }}
+        - -r
+        - {{ .Values.hashicorpVault.roleid }}
+        {{- end }}
+        {{- if .Values.hashicorpVault.secretid }}
+        - -s
+        - {{ .Values.hashicorpVault.secretid }}
+        {{- end }}
+        {{- if .Values.hashicorpVault.token }}
+        - -t
+        - {{ .Values.hashicorpVault.token }}
+        {{- end }}
+        - -o
+        - -c
+        - /etc/certs/output/server-cert.pem
+        - -l
+        - /etc/certs/output/server-key.pem
+        - -h
+        - {{ include "mimir.fullname" . }}-hashicorpvault
+      {{- end }}
+{{- end }}
+{{- if .Values.aws.enabled }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ include "mimir.fullname" . }}-aws
+  labels:
+    app: {{ include "mimir.fullname" . }}-aws
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ include "mimir.fullname" . }}-aws
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+    spec:
+      restartPolicy: Always
+      serviceAccountName: {{ .Values.serviceAccount }}
+      volumes:
+      - name: certs-init
+        configMap:
+          name: {{ include "mimir.fullname" . }}-aws
+      - name: certs
+        emptyDir: {}
+      initContainers:
+        - name: mimir-webhook-init
+          image: {{ .Values.webhook.initImage.repository }}:{{ .Values.webhook.initImage.tag }}
+          imagePullPolicy: {{ .Values.webhook.initImage.pullPolicy }}
+          env:
+          - name: RELEASE
+            value: {{ include "mimir.fullname" . }}-aws
+          volumeMounts:
+          - name: certs-init
+            mountPath: "/etc/certs/templates"
+            readOnly: true
+          - name: certs
+            mountPath: "/etc/certs/output"
+      containers:
+      {{- if .Values.aws.enabled }}
+      - name: {{ include "mimir.fullname" . }}-hook-aws
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: RELEASE
+          value: {{ include "mimir.fullname" . }}-aws
+        volumeMounts:
+        - name: certs
+          mountPath: "/etc/certs/output"
+          readOnly: true
+        args:
+        - -i
+        - -b
+        - aws
+        - -a
+        - {{ .Values.aws.auth }}
+        - -r
+        - {{ .Values.aws.region }}
+        {{- if .Values.aws.accesskey }}
+        - -e
+        - {{ .Values.aws.accesskey }}
+        {{- end }}
+        {{- if .Values.aws.secretkey }}
+        - -s
+        - {{ .Values.aws.secretkey }}
+        {{- end }}
+        {{- if .Values.aws.path }}
+        - -p
+        - {{ .Values.aws.path }}
+        {{- end }}
+        {{- if .Values.aws.profile }}
+        - -f
+        - {{ .Values.aws.profile }}
+        {{- end }}
+      {{- end }}
+        - -o
+        - -c
+        - /etc/certs/output/server-cert.pem
+        - -l
+        - /etc/certs/output/server-key.pem
+        - -h
+        - {{ include "mimir.fullname" . }}-aws
+{{- end }}
+{{- end }}

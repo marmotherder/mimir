@@ -16,7 +16,7 @@ type HashicorpVaultAuth interface {
 type HashicorpVaultK8SAuth struct {
 	IsPod      bool
 	Role       string
-	ConfigPath string
+	ConfigPath *string
 }
 
 // GetToken retrieves a valid Hashicorp Vault token via kubernetes authentication method for integrating with the vault

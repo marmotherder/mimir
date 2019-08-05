@@ -17,6 +17,7 @@ git:
 install: false
 
 script:
+  - docker build -t marmotherder/mimir-init:latest init
   - go build 
   - go test github.com/marmotherder/mimir/clients
   - docker build -t marmotherder/mimir:latest .

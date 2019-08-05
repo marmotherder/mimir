@@ -1,0 +1,36 @@
+{{- if .Values.webhook.enabled }}
+{{- if .Values.hashicorpVault.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mimir.fullname" . }}-hashicorpvault
+  labels:
+    app: {{ include "mimir.fullname" . }}-hashicorpvault
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  ports:
+  - port: 443
+    targetPort: 443
+  selector:
+    app: {{ include "mimir.fullname" . }}-hashicorpvault
+{{- end }}
+{{- if .Values.aws.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mimir.fullname" . }}-aws
+  labels:
+    app: {{ include "mimir.fullname" . }}-aws
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  ports:
+  - port: 443
+    targetPort: 443
+  selector:
+    app: {{ include "mimir.fullname" . }}-aws
+{{- end }}
+{{- end }}
