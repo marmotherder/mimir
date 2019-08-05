@@ -1,0 +1,33 @@
+# A service account with valid permissions must be installed before this chart
+serviceAccount: mimir-service-account
+
+job:
+  enabled: false
+  schedule: "*/5 * * * *"
+  restartPolicy: Never
+
+webhook:
+  enabled: false
+  failurePolicy: Ignore
+  initImage:
+    repository: marmotherder/mimir-init
+    tag: latest
+  pullPolicy: IfNotPresent
+
+image:
+  repository: marmotherder/mimir
+  tag: latest
+  pullPolicy: IfNotPresent
+
+hashicorpVault:
+  enabled: false
+  url: http://vault-vault:8200
+  auth: k8s
+  mount: secret
+  role: reader
+
+aws:
+  enabled: false
+  region: eu-west-1
+  auth: iam
+  

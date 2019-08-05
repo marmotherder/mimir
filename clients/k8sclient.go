@@ -13,9 +13,9 @@ import (
 )
 
 // getRestConfig is a helper to load the config from a kubeconfig file
-func getRestConfig(isPod bool, configPath ...string) (*rest.Config, error) {
-	if len(configPath) > 0 && configPath[0] != "" {
-		return clientcmd.BuildConfigFromFlags("", configPath[0])
+func getRestConfig(isPod bool, configPath *string) (*rest.Config, error) {
+	if configPath != nil {
+		return clientcmd.BuildConfigFromFlags("", *configPath)
 	}
 	if isPod {
 		return rest.InClusterConfig()
@@ -24,8 +24,8 @@ func getRestConfig(isPod bool, configPath ...string) (*rest.Config, error) {
 }
 
 // NewK8SClient loads a new k8s client for integration with the configured cluster
-func NewK8SClient(isPod bool, configPath ...string) (*kubernetes.Clientset, error) {
-	config, err := getRestConfig(isPod, configPath...)
+func NewK8SClient(isPod bool, configPath *string) (*kubernetes.Clientset, error) {
+	config, err := getRestConfig(isPod, configPath)
 
 	if err != nil {
 		return nil, err
@@ -33,6 +33,7 @@ func NewK8SClient(isPod bool, configPath ...string) (*kubernetes.Clientset, erro
 	if config == nil {
 		return nil, errors.New("Failed to load kubernetes config")
 	}
+
 	return kubernetes.NewForConfig(config)
 }
 
@@ -85,12 +86,12 @@ func ManageSecrets(client *kubernetes.Clientset, mgr SecretsManager, secrets ...
 				return false
 			}()
 			if hasSecret {
-				if _, err := client.CoreV1().Secrets(namespace).Update(buildK8sSecret(nsSecret, mgr)); err != nil {
+				if _, err := client.CoreV1().Secrets(namespace).Update(BuildK8SSecret(nsSecret, mgr)); err != nil {
 					return err
 				}
 				log.Printf("Updated secret: %s in namespace %s\n", nsSecret.Name, nsSecret.Namespace)
 			} else {
-				if _, err := client.CoreV1().Secrets(namespace).Create(buildK8sSecret(nsSecret, mgr)); err != nil {
+				if _, err := client.CoreV1().Secrets(namespace).Create(BuildK8SSecret(nsSecret, mgr)); err != nil {
 					return err
 				}
 				log.Printf("Created secret: %s in namespace %s\n", nsSecret.Name, nsSecret.Namespace)
@@ -139,8 +140,8 @@ func getManagedSecrets(secrets []core_v1.Secret, mgr SecretsManager) []core_v1.S
 	return managedSecrets
 }
 
-// buildK8sSecret builds a k8s secret from a mimir intermediary Secret
-func buildK8sSecret(secret *Secret, mgr SecretsManager) *core_v1.Secret {
+// BuildK8SSecret builds a k8s secret from a mimir intermediary Secret
+func BuildK8SSecret(secret *Secret, mgr SecretsManager) *core_v1.Secret {
 	data := make(map[string][]byte)
 	for k, v := range secret.Data {
 		data[k] = []byte(v)

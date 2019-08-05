@@ -1,0 +1,132 @@
+{{- if .Values.webhook.enabled }}
+{{- if .Values.hashicorpVault.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mimir.fullname" . }}-hashicorpvault
+  labels:
+    app: {{ include "mimir.fullname" . }}-hashicorpvault
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+data:
+  csr.json: |-
+    {
+      "hosts": [
+        "{{ include "mimir.fullname" . }}-hashicorpvault.{{ .Release.Namespace }}.svc.cluster.local",
+        "{{ include "mimir.fullname" . }}-hashicorpvault.{{ .Release.Namespace }}.svc"
+      ],
+      "CN": "{{ include "mimir.fullname" . }}-hashicorpvault.{{ .Release.Namespace }}.svc.cluster.local",
+      "key": {
+        "algo": "ecdsa",
+        "size": 256
+      }
+    }
+  csr.yaml: |-
+    apiVersion: certificates.k8s.io/v1beta1
+    kind: CertificateSigningRequest
+    metadata:
+      name: {{ include "mimir.fullname" . }}-hashicorpvault
+      labels:
+        app: {{ include "mimir.fullname" . }}-hashicorpvault
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+    spec:
+      request: $SERVER_CERT
+      usages:
+      - digital signature
+      - key encipherment
+      - server auth
+      - client auth
+  webhook.yaml: |-
+    apiVersion: admissionregistration.k8s.io/v1beta1
+    kind: MutatingWebhookConfiguration
+    metadata:
+      name: {{ include "mimir.fullname" . }}-hashicorpvault
+      labels:
+        app: {{ include "mimir.fullname" . }}-hashicorpvault
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+    webhooks:
+      - name: {{ include "mimir.fullname" . }}-hashicorpvault.{{ .Release.Namespace }}.svc.cluster.local
+        failurePolicy: {{ .Values.webhook.failurePolicy }}
+        clientConfig:
+          caBundle: $CA_BUNDLE
+          service:
+            name: {{ include "mimir.fullname" . }}-hashicorpvault
+            namespace: {{ .Release.Namespace }}
+            path: "/hook"
+        rules:
+          - operations: ["CREATE","DELETE"]
+            apiGroups: [""]
+            apiVersions: ["v1"]
+            resources: ["pods"]
+{{- end }}
+{{- if .Values.aws.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mimir.fullname" . }}-aws
+  labels:
+    app: {{ include "mimir.fullname" . }}-aws
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+data:
+  csr.json: |-
+    {
+      "hosts": [
+        "{{ include "mimir.fullname" . }}-aws.{{ .Release.Namespace }}.svc.cluster.local",
+        "{{ include "mimir.fullname" . }}-aws.{{ .Release.Namespace }}.svc"
+      ],
+      "CN": "{{ include "mimir.fullname" . }}-aws.{{ .Release.Namespace }}.svc.cluster.local",
+      "key": {
+        "algo": "ecdsa",
+        "size": 256
+      }
+    }
+  csr.yaml: |-
+    apiVersion: certificates.k8s.io/v1beta1
+    kind: CertificateSigningRequest
+    metadata:
+      name: {{ include "mimir.fullname" . }}-aws
+      labels:
+        app: {{ include "mimir.fullname" . }}-aws
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+    spec:
+      request: $SERVER_CERT
+      usages:
+      - digital signature
+      - key encipherment
+      - server auth
+      - client auth
+  webhook.yaml: |-
+    apiVersion: admissionregistration.k8s.io/v1beta1
+    kind: MutatingWebhookConfiguration
+    metadata:
+      name: {{ include "mimir.fullname" . }}-aws
+      labels:
+        app: {{ include "mimir.fullname" . }}-aws
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+    webhooks:
+      - name: {{ include "mimir.fullname" . }}-aws.{{ .Release.Namespace }}.svc.cluster.local
+        failurePolicy: {{ .Values.webhook.failurePolicy }}
+        clientConfig:
+          caBundle: $CA_BUNDLE
+          service:
+            name: {{ include "mimir.fullname" . }}-aws
+            namespace: {{ .Release.Namespace }}
+            path: "/hook"
+        rules:
+          - operations: ["CREATE","DELETE"]
+            apiGroups: [""]
+            apiVersions: ["v1"]
+            resources: ["pods"]
+{{- end }}
+{{- end }}

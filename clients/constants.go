@@ -28,4 +28,17 @@ const (
 	// Source is the common annotation to denote
 	// where the secret was sourced from in k8s
 	Source string = "mimir-source"
+	// Hook is a reference string per server that
+	// allows multiple hooks to co-exist in the
+	// same cluster
+	Hook string = "mimir-hook"
+	// Remote is the path/name of the remote secret
+	Remote string = "mimir-remote"
+	// Path is the local container path the secrets
+	// should be mounted to
+	Path string = "mimir-path"
+	// Env is a switch that when set, makes mimir
+	// patch the pod to inject all the keys of the
+	// secret to the containers as environment vars
+	Env string = "mimir-env"
 )

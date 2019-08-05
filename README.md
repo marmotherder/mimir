@@ -5,9 +5,24 @@
 
 A commandline based tool for synchronising secrets between kubernetes, and an external hosted secrets management platform
 
+Also supports running as a web server for listening to requests as a [Kubernetes Admissions Controller](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/)
+
 ## Supported Backends
 
 Currently both Hashicorp Vault and AWS Secrets Manager are supported
+
+## Running as a Admission Controller
+
+mimir supports a deployment of itself onto a k8s cluster to act as an Admission Controller in the cluster. When in this setup, mimir will deploy a webhook and itself, and then act as a hook for all pod creation and deletion requests. For pods that have mimir annotations, the hook will attempt to create a secret sourced from a remote secrets manager, and patch the pod to load these secrets. At delete it will try to delete the secret to clean up.
+
+### mimir pod annotations
+
+The following annotations are suppored at pod level. Using these annotations in a pod spec will trigger a mutation via the mimir Admission controller
+
+* `mimir-hook` - The name of the webhook that should be used to lookup the secrets. This value will be set at the deploy time of mimir, and then referenced in the pod
+* `mimir-remote` - The name/path of the secret in the remote secret manager. For AWS Secret Manager, this should just be the name of the secret, for Hashicorp Vault, it should be the path (relative to the mount provided to mimir server)
+* `mimir-path` - The path on all containers in the pod that the remote secret should be mounted to as files (optional)
+* `mimir-env` - A switch, which when set as "true", will load all the keys in the secret as an environment variable in all the containers in the pod (optional)
 
 ## Remote Managed Secrets
 
@@ -26,15 +41,28 @@ Secrets managed in AWS are based on tags. Create secrets in AWS as normal, but t
 
 ## Running mimir
 
-Mimir can be run via commandline on any windows/macOS/linux system via a command line interface. Alternatively, the provided helm chart at that `chart` path will allow you to deploy the application onto a cluster, where it will run as a crojob.
+Mimir can be run via commandline on any windows/macOS/linux system via a command line interface. Alternatively, the provided helm charts at that `charts` path will allow you to deploy the application onto a cluster.
+The chart `mimir-service-account` should be deployed before the basic `mimir` chart.
 
 For running it via the backend, the following are the top level CLI arguments that must be passed in.
 
-| Long      | Short | Description                                  | Choices                 | Required                          |
-| --------- | ----- | -------------------------------------------- | ----------------------- | --------------------------------- |
-| `backend` | `b`   | The secrets manager backend to be used       | `hashicorpvault`, `aws` | yes                               |
-| `ispod`   | `i`   | Is the application being run within a pod?   |                         | no - Defaults to false if not set |
-| `kcpath`  | `k`   | An absolute path to a valid kube config file |                         | no - Takes from home if not set   |
+| Long      | Short | Description                                                    | Choices                 | Required                          |
+| --------- | ----- | -------------------------------------------------------------- | ----------------------- | --------------------------------- |
+| `backend` | `b`   | The secrets manager backend to be used                         | `hashicorpvault`, `aws` | yes                               |
+| `ispod`   | `i`   | Is the application being run within a pod?                     |                         | no - Defaults to false if not set |
+| `kcpath`  | `k`   | An absolute path to a valid kube config file                   |                         | no - Takes from home if not set   |
+| `server`  | `o`   | Should mimir run as a webserver for listening to k8s webhooks? |                         | no - Defaults to false if not set |
+
+### Running as a webhook server
+
+*Running mimir as a server for webhooks will not alone build/deploy the k8s configuration for listening to webhooks. As such it is highly recommended you do not run these options outside of the provided helm deployment*
+
+| Long      | Short | Description                                                                       | Default   | Required  |
+| --------- | ----- | --------------------------------------------------------------------------------- | --------- | --------- |
+| `port`    | `d`   | The port for the server to listen on                                              | `443`     | yes       |
+| `cert`    | `c`   | Filesystem path to a PEM encoded CA signed certificate                            |           | yes       |
+| `key`     | `l`   | Filesystem path to a PEM encoded private key for a tls cert                       |           | yes       |
+| `hook`    | `h`   | Reference sting for the hook. Allows multiple hooks to run in the same cluster    |           | yes       |
 
 ### Running for Hashicorp Vault
 

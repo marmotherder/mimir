@@ -1,59 +1,68 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/marmotherder/mimir/clients"
 
+	"github.com/gorilla/mux"
 	"github.com/jessevdk/go-flags"
 )
 
+var opts Options
+var sOpts ServerOptions
+var release string
+
 func main() {
-	var opts Options
 	parseArgs(&opts)
 
-	switch opts.Backend {
-	case "hashicorpvault":
-		var hvOpts HashiCorpVaultOptions
-		parseArgs(&hvOpts)
-		switch hvOpts.Authentication {
-		case "k8s":
-			var hvK8SOpts HashicorpVaultK8SOptions
-			parseArgs(&hvK8SOpts)
-			runHashiCorpVault(opts, hvOpts, clients.HashicorpVaultK8SAuth{IsPod: opts.IsPod, Role: hvK8SOpts.Role, ConfigPath: opts.KubeconfigPath})
-		case "approle":
-			var hvAppRoleOpts HashicorpVaultAppRoleOptions
-			parseArgs(&hvAppRoleOpts)
-			runHashiCorpVault(opts, hvOpts, clients.HashicorpVaultApproleAuth{RoleID: hvAppRoleOpts.RoleID, SecretID: hvAppRoleOpts.SecretID})
-		case "token":
-			var hvTokenOpts HashicorpVaultTokenOptions
-			parseArgs(&hvTokenOpts)
-			runHashiCorpVault(opts, hvOpts, clients.HashicorpVaultTokenAuth{Token: hvTokenOpts.Token})
-		default:
-			log.Fatal("Unknown Hashicorp Vault authentication type\n")
+	if opts.IsPod {
+		log.Println("Running mimir as a pod in k8s")
+	}
+
+	if opts.ServerMode {
+		re := false
+		release, re = os.LookupEnv("RELEASE")
+		if !re {
+			release = "mimir"
 		}
-	case "aws":
-		var awsOpts AWSOptions
-		parseArgs(&awsOpts)
-		switch awsOpts.Authentication {
-		case "iam":
-			runAWS(opts, awsOpts, &clients.AWSIAMAuth{})
-		case "static":
-			var staticAWSOpts AWSCredentialsOptions
-			parseArgs(&staticAWSOpts)
-			runAWS(opts, awsOpts, &clients.AWSStaticCredentialsAuth{AccessKeyID: staticAWSOpts.AccessKeyID, SecretAccessKey: staticAWSOpts.SecretAccessKey})
-		case "env":
-			runAWS(opts, awsOpts, &clients.AWSEnvironmentAuth{})
-		case "shared":
-			var awsSharedOpts AWSSharedOptions
-			parseArgs(&awsSharedOpts)
-			runAWS(opts, awsOpts, &clients.AWSSharedCredentialsAuth{Path: awsSharedOpts.Path, Profile: awsSharedOpts.Profile})
-		default:
-			log.Fatal("Unknown AWS authentication type\n")
+
+		r := mux.NewRouter()
+		r.HandleFunc("/hook", hook).Methods(http.MethodPost)
+		parseArgs(&sOpts)
+		log.Printf("Running server on port: %d\n", sOpts.ServerPort)
+
+		srv := &http.Server{
+			Addr:    fmt.Sprintf(":%d", sOpts.ServerPort),
+			Handler: r,
 		}
-	default:
-		log.Fatal("Failed to load a configured secrets backend properly\n")
+
+		c := make(chan os.Signal, 1)
+
+		// The init container for the application when running as webhook will create a csr and
+		// a mutatingwebhookconfiguration. This loop keeps the server alive, and tries to run
+		// shutdown login when we detect that the core container is being shutdown
+		go func() {
+			err := srv.ListenAndServeTLS(sOpts.TLSCertPath, sOpts.TLSKeyPath)
+			log.Println(err.Error())
+			c <- os.Interrupt
+		}()
+
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+		<-c
+
+		shutdownServer(srv)
+	} else {
+		smc, mgr, err := loadClient()
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+		run(opts, smc, mgr)
 	}
 }
 
@@ -67,23 +76,23 @@ func parseArgs(opts interface{}) {
 	}
 }
 
-// runHashiCorpVault is the entrypoint for a mimir run using Hashicorp Vault
-func runHashiCorpVault(opts Options, hvOpts HashiCorpVaultOptions, auth clients.HashicorpVaultAuth) {
+// loadHashiCorpVaultClient loads a valid client for loading secrets from Hashicorp Vault
+func loadHashiCorpVaultClient(opts Options, hvOpts HashiCorpVaultOptions, auth clients.HashicorpVaultAuth) (smc clients.SecretsManagerClient, mgr clients.SecretsManager) {
 	client, err := clients.NewHashicorpVaultClient(hvOpts.Path, hvOpts.URL, hvOpts.Mount, auth)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	run(opts, client, clients.HashicorpVault)
+	return client, clients.HashicorpVault
 }
 
-// runAWS is the entrypoint for a mimir run using AWS Secrets Manager
-func runAWS(opts Options, awsOpts AWSOptions, auth clients.AWSSecretsAuth) {
+// loadAWSClient loads a valid client for loading secrets from AWS Secrets Manager
+func loadAWSClient(opts Options, awsOpts AWSOptions, auth clients.AWSSecretsAuth) (smc clients.SecretsManagerClient, mgr clients.SecretsManager) {
 	auth.SetRegion(awsOpts.Region)
 	client, err := clients.NewAWSSecretsClient(auth)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	run(opts, client, clients.AWS)
+	return client, clients.AWS
 }
 
 // run performs a run of mimir secret syncing for the given backend

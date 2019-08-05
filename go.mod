@@ -33,6 +33,7 @@ require (
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/google/gofuzz v1.0.0 // indirect
 	github.com/googleapis/gnostic v0.2.0 // indirect
+	github.com/gorilla/mux v1.6.2
 	github.com/hashicorp/consul v1.4.4 // indirect
 	github.com/hashicorp/consul/api v1.0.1 // indirect
 	github.com/hashicorp/go-memdb v1.0.1 // indirect
@@ -51,8 +52,6 @@ require (
 	github.com/marstr/guid v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/michaelklishin/rabbit-hole v1.5.0 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/ncw/swift v1.0.47 // indirect
 	github.com/posener/complete v1.2.1 // indirect
 	github.com/pquerna/otp v1.1.0 // indirect
@@ -67,13 +66,10 @@ require (
 	google.golang.org/genproto v0.0.0-20190418145605-e7d98fc518a7 // indirect
 	google.golang.org/grpc v1.20.1 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce // indirect
-	k8s.io/api v0.0.0-20190327184913-92d2ee7fc726
-	k8s.io/apimachinery v0.0.0-20190313115320-c9defaaddf6f
-	k8s.io/client-go v11.0.0+incompatible
-	k8s.io/klog v0.3.0 // indirect
-	k8s.io/utils v0.0.0-20190308190857-21c4ce38f2a7 // indirect
+	k8s.io/api v0.0.0-20190620084959-7cf5895f2711
+	k8s.io/apimachinery v0.0.0-20190612205821-1799e75a0719
+	k8s.io/client-go v12.0.0+incompatible
 	layeh.com/radius v0.0.0-20190322222518-890bc1058917 // indirect
-	sigs.k8s.io/yaml v1.1.0 // indirect
 )
 
 //replace github.com/hashicorp/vault/api v1.0.1 => github.com/hashicorp/vault @v1.1.2
