@@ -16,6 +16,7 @@ import (
 
 var opts Options
 var sOpts ServerOptions
+var release string
 
 func main() {
 	parseArgs(&opts)
@@ -25,6 +26,12 @@ func main() {
 	}
 
 	if opts.ServerMode {
+		re := false
+		release, re = os.LookupEnv("RELEASE")
+		if !re {
+			release = "mimir"
+		}
+
 		r := mux.NewRouter()
 		r.HandleFunc("/hook", hook).Methods(http.MethodPost)
 		parseArgs(&sOpts)

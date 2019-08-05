@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/marmotherder/mimir/clients"
@@ -57,7 +56,7 @@ func hook(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			setResultMessage(&as, err.Error())
 		} else {
-			genName := fmt.Sprintf("mimir-%s", ar.Request.Name)
+			genName := fmt.Sprintf("%s-%s", release, ar.Request.Name)
 			err := kc.CoreV1().Secrets(ar.Request.Namespace).Delete(genName, &meta_v1.DeleteOptions{})
 			if err != nil {
 				setResultMessage(&as, err.Error())
@@ -84,7 +83,7 @@ func loadSecret(name, namespace, remote string) (*core_v1.Secret, *kubernetes.Cl
 
 	kc, err := clients.NewK8SClient(opts.IsPod, opts.KubeconfigPath)
 
-	genName := fmt.Sprintf("mimir-%s", name)
+	genName := fmt.Sprintf("%s-%s", release, name)
 
 	kc.CoreV1().Secrets(namespace).Delete(genName, &meta_v1.DeleteOptions{})
 
@@ -289,10 +288,6 @@ func shutdownServer(srv *http.Server) {
 		log.Fatal(err)
 	}
 
-	release, re := os.LookupEnv("RELEASE")
-	if !re {
-		release = "mimir"
-	}
 	log.Printf("Using release %s\n", release)
 
 	whs, err := kc.AdmissionregistrationV1beta1().MutatingWebhookConfigurations().List(meta_v1.ListOptions{LabelSelector: fmt.Sprintf("app=%s", release)})
