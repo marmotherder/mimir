@@ -30,3 +30,4 @@ aws:
   enabled: false
   region: eu-west-1
   auth: iam
+  
