@@ -123,7 +123,7 @@ func addPatchReq(isNew func() bool, op string, path string, patchReqs *[]patchRe
 
 // runCreateHook is a split out function for running the steps when creating a pod
 func runCreateHook(w http.ResponseWriter, r *http.Request, ar *v1beta1.AdmissionReview, pod *core_v1.Pod, as *v1beta1.AdmissionResponse) error {
-	remote, path, runEnv, err := shouldMutate(pod)
+	remote, path, local, runEnv, err := shouldMutate(pod)
 	if err != nil {
 		return err
 	}
@@ -131,7 +131,23 @@ func runCreateHook(w http.ResponseWriter, r *http.Request, ar *v1beta1.Admission
 		return nil
 	}
 
-	k8sSecret, kc, data, err := loadSecret(pod.Name, pod.Namespace, *remote)
+	podName := pod.Name
+	if local != nil && *local != "" {
+		podName = *local
+	}
+	if podName == "" {
+		podName = string(ar.Request.UID)
+	}
+
+	namespace := pod.Namespace
+	if namespace == "" {
+		namespace = ar.Request.Namespace
+	}
+	if namespace == "" {
+		namespace = "default"
+	}
+
+	k8sSecret, kc, data, err := loadSecret(podName, namespace, *remote)
 	if err != nil {
 		return err
 	}
@@ -195,10 +211,10 @@ func runCreateHook(w http.ResponseWriter, r *http.Request, ar *v1beta1.Admission
 		return &p
 	}()
 
-	if _, err := kc.CoreV1().Secrets(ar.Request.Namespace).Create(k8sSecret); err != nil {
+	if _, err := kc.CoreV1().Secrets(namespace).Create(k8sSecret); err != nil {
 		return err
 	}
-	setResultMessage(as, fmt.Sprintf("Created secret %s in namespace %s", k8sSecret.Name, k8sSecret.Namespace))
+	setResultMessage(as, fmt.Sprintf("Created secret %s in namespace %s", k8sSecret.Name, namespace))
 	return nil
 }
 
@@ -220,12 +236,13 @@ func readRequest(body io.ReadCloser) (*v1beta1.AdmissionReview, *core_v1.Pod, er
 
 // shouldMutate will scan the pod for the desired annotations
 // If the annotations exist, return the paths we need to progress with the secrets creation
-func shouldMutate(pod *core_v1.Pod) (*string, *string, bool, error) {
+func shouldMutate(pod *core_v1.Pod) (*string, *string, *string, bool, error) {
 
 	isHook := false
 	remote := ""
 	path := ""
 	env := "false"
+	local := ""
 
 	for k, v := range pod.Annotations {
 		switch k {
@@ -239,23 +256,25 @@ func shouldMutate(pod *core_v1.Pod) (*string, *string, bool, error) {
 			path = v
 		case clients.Env:
 			env = v
+		case clients.Local:
+			local = v
 		}
 	}
 
 	runEnv, _ := strconv.ParseBool(env)
 
 	if !isHook {
-		return nil, nil, false, nil
+		return nil, nil, nil, false, nil
 	}
 
 	if remote == "" {
-		return nil, nil, false, errors.New("Missing properties for remote secret name")
+		return nil, nil, nil, false, errors.New("Missing properties for remote secret name")
 	}
 
 	if path != "" {
-		return &remote, &path, runEnv, nil
+		return &remote, &path, &local, runEnv, nil
 	}
-	return &remote, nil, runEnv, nil
+	return &remote, nil, &local, runEnv, nil
 }
 
 // setResultMessage adds a message to the response struct, can be errors or otherwise
