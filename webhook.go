@@ -82,6 +82,9 @@ func loadSecret(name, namespace, remote string) (*core_v1.Secret, *kubernetes.Cl
 	}
 
 	kc, err := clients.NewK8SClient(opts.IsPod, opts.KubeconfigPath)
+	if err != nil {
+		return nil, nil, nil, err
+	}
 
 	genName := fmt.Sprintf("%s-%s", release, name)
 
