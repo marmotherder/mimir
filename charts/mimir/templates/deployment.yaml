@@ -41,7 +41,7 @@ spec:
           - name: certs
             mountPath: "/etc/certs/output"
       containers:
-      {{- if .Values.hashicorpVault.enabled }}
+      {{ if .Values.hashicorpVault.enabled }}
       - name: {{ include "mimir.fullname" . }}-hook-hashicorpvault
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -57,31 +57,31 @@ spec:
         - -b
         - hashicorpvault
         - -a
-        - {{ .Values.hashicorpVault.auth }}
+        - {{ quote .Values.hashicorpVault.auth }}
         - -u
-        - {{ .Values.hashicorpVault.url }}
+        - {{ quote .Values.hashicorpVault.url }}
         - -m
-        - {{ .Values.hashicorpVault.mount }}
-        {{- if .Values.hashicorpVault.path }}
+        - {{ quote .Values.hashicorpVault.mount }}
+        {{ if .Values.hashicorpVault.path }}
         - -p
-        - {{ .Values.hashicorpVault.path }}
-        {{- end }}
-        {{- if .Values.hashicorpVault.role }}
+        - {{ quote .Values.hashicorpVault.path }}
+        {{ end }}
+        {{ if .Values.hashicorpVault.role }}
         - -r
-        - {{ .Values.hashicorpVault.role }}
-        {{- end }}
-        {{- if .Values.hashicorpVault.roleid }}
+        - {{ quote .Values.hashicorpVault.role }}
+        {{ end }}
+        {{ if .Values.hashicorpVault.roleid }}
         - -r
-        - {{ .Values.hashicorpVault.roleid }}
-        {{- end }}
-        {{- if .Values.hashicorpVault.secretid }}
+        - {{ quote .Values.hashicorpVault.roleid }}
+        {{ end }}
+        {{ if .Values.hashicorpVault.secretid }}
         - -s
-        - {{ .Values.hashicorpVault.secretid }}
-        {{- end }}
-        {{- if .Values.hashicorpVault.token }}
+        - {{ quote .Values.hashicorpVault.secretid }}
+        {{ end }}
+        {{ if .Values.hashicorpVault.token }}
         - -t
-        - {{ .Values.hashicorpVault.token }}
-        {{- end }}
+        - {{ quote .Values.hashicorpVault.token }}
+        {{ end }}
         - -o
         - -c
         - /etc/certs/output/server-cert.pem
@@ -89,7 +89,7 @@ spec:
         - /etc/certs/output/server-key.pem
         - -h
         - {{ include "mimir.fullname" . }}-hashicorpvault
-      {{- end }}
+      {{ end }}
 {{- end }}
 {{- if .Values.aws.enabled }}
 apiVersion: extensions/v1beta1
@@ -133,7 +133,7 @@ spec:
           - name: certs
             mountPath: "/etc/certs/output"
       containers:
-      {{- if .Values.aws.enabled }}
+      {{ if .Values.aws.enabled }}
       - name: {{ include "mimir.fullname" . }}-hook-aws
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -149,26 +149,26 @@ spec:
         - -b
         - aws
         - -a
-        - {{ .Values.aws.auth }}
+        - {{ quote .Values.aws.auth }}
         - -r
-        - {{ .Values.aws.region }}
-        {{- if .Values.aws.accesskey }}
+        - {{ quote .Values.aws.region }}
+        {{ if .Values.aws.accesskey }}
         - -e
-        - {{ .Values.aws.accesskey }}
-        {{- end }}
-        {{- if .Values.aws.secretkey }}
+        - {{ quote .Values.aws.accesskey }}
+        {{ end }}
+        {{ if .Values.aws.secretkey }}
         - -s
-        - {{ .Values.aws.secretkey }}
-        {{- end }}
-        {{- if .Values.aws.path }}
+        - {{ quote .Values.aws.secretkey }}
+        {{ end }}
+        {{if .Values.aws.path }}
         - -p
-        - {{ .Values.aws.path }}
-        {{- end }}
-        {{- if .Values.aws.profile }}
+        - {{ quote .Values.aws.path }}
+        {{ end }}
+        {{ if .Values.aws.profile }}
         - -f
-        - {{ .Values.aws.profile }}
-        {{- end }}
-      {{- end }}
+        - {{ quote .Values.aws.profile }}
+        {{ end }}
+      {{ end }}
         - -o
         - -c
         - /etc/certs/output/server-cert.pem
