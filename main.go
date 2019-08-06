@@ -17,6 +17,7 @@ import (
 var opts Options
 var sOpts ServerOptions
 var release string
+var re bool
 
 func main() {
 	parseArgs(&opts)
@@ -26,7 +27,6 @@ func main() {
 	}
 
 	if opts.ServerMode {
-		re := false
 		release, re = os.LookupEnv("RELEASE")
 		if !re {
 			release = "mimir"

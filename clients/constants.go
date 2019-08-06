@@ -34,6 +34,10 @@ const (
 	Hook string = "mimir-hook"
 	// Remote is the path/name of the remote secret
 	Remote string = "mimir-remote"
+	// Local is an override. When set, the secret will
+	// be created with the name given to this attribute,
+	// rather than the pod name
+	Local string = "mimir-local"
 	// Path is the local container path the secrets
 	// should be mounted to
 	Path string = "mimir-path"

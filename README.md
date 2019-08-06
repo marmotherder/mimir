@@ -23,6 +23,7 @@ The following annotations are suppored at pod level. Using these annotations in 
 * `mimir-remote` - The name/path of the secret in the remote secret manager. For AWS Secret Manager, this should just be the name of the secret, for Hashicorp Vault, it should be the path (relative to the mount provided to mimir server)
 * `mimir-path` - The path on all containers in the pod that the remote secret should be mounted to as files (optional)
 * `mimir-env` - A switch, which when set as "true", will load all the keys in the secret as an environment variable in all the containers in the pod (optional)
+* `mimir-local` - Overrides the name of the generated secret with what is provided here (optional)
 
 ## Remote Managed Secrets
 
