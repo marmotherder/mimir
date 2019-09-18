@@ -3,7 +3,7 @@ package main
 // Options is the common mimir options available
 type Options struct {
 	ServerMode     bool    `short:"o" long:"server" description:"Should the application run as a webserver?"`
-	Backend        string  `short:"b" long:"backend" choice:"hashicorpvault" choice:"aws" description:"The secrets manager backend to be used" required:"true"`
+	Backend        string  `short:"b" long:"backend" choice:"hashicorpvault" choice:"aws" choice:"azure" description:"The secrets manager backend to be used" required:"true"`
 	IsPod          bool    `short:"i" long:"ispod" description:"Is the application being run within a pod?"`
 	KubeconfigPath *string `short:"k" long:"kcpath" description:"An absolute path to a valid kube config file"`
 }
@@ -56,4 +56,15 @@ type AWSCredentialsOptions struct {
 type AWSSharedOptions struct {
 	Path    string `short:"p" long:"path" description:"The absolute path to the AWS credentials file"`
 	Profile string `short:"f" long:"profile" description:"The AWS profile to use"`
+}
+
+// AzureKeyVaultOptions is the base configuration options for Azure Key Vault
+type AzureKeyVaultOptions struct {
+	Authentication string `short:"a" long:"auth" choice:"env" choice:"file" description:"Authentication method to use with Azure" required:"true"`
+	SubscriptionID string `short:"s" long:"subid" description:"The subscription ID to use, otherwise it takes from AZURE_SUBSCRIPTION_ID environmemnt variable"`
+}
+
+// AzureKeyVaultFileOptions provides a simple file path if using a credentials file for authentication
+type AzureKeyVaultFileOptions struct {
+	FilePath string `short:"f" long:"path" description:"Path to the Azure credentials file to use for authentication"`
 }

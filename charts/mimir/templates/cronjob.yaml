@@ -81,4 +81,23 @@ spec:
             - {{ .Values.aws.profile }}
             {{- end }}
           {{- end }}
+          {{- if .Values.azure.enabled }}
+          - name: {{ include "mimir.fullname" . }}-azure
+            image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            args:
+            - -i
+            - -b
+            - azure
+            - -a
+            - {{ .Values.azure.auth }}
+            {{ if .Values.azure.subscriptionID }}
+            - -s
+            - {{ quote .Values.azure.subscriptionID }}
+            {{ end }}
+            {{ if .Values.azure.credentialsFilePath }}
+            - -f
+            - {{ quote .Values.azure.credentialsFilePath }}
+            {{ end }}
+          {{- end }}
 {{- end }}

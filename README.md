@@ -9,7 +9,7 @@ Also supports running as a web server for listening to requests as a [Kubernetes
 
 ## Supported Backends
 
-Currently both Hashicorp Vault and AWS Secrets Manager are supported
+Currently Hashicorp Vault, AWS Secrets Manager, and Azure Key Vault secrets are supported
 
 ## Running as a Admission Controller
 
@@ -88,3 +88,11 @@ For running it via the backend, the following are the top level CLI arguments th
 | `secretkey` | `s`   | The AWS SECRET_ACCESS_KEY variable to use     |                                  | yes - if auth is `static` |
 | `path`      | `p`   | The absolute path to the AWS credentials file |                                  | no                        |
 | `profile`   | `f`   | The AWS profile to use                        |                                  | no                        |
+
+### Running for Azure Key Vault
+
+| Long       | Short | Description                                                                            | Choices       | Required                |
+| ---------- | ----- | -------------------------------------------------------------------------------------- | ------------- | ----------------------- |
+| `auth`     | `a`   | Authentication method to use with Azure                                                | `env`, `file` | yes                     |
+| `subid`    | `s`   | Azure Subscription ID (if not set will read from env variable 'AZURE_SUBSCRIPTION_ID') |               | no                      |
+| `filepath` | `f`   | Local path to an Azure credentials file                                                |               | yes - if auth is `file` |

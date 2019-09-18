@@ -3,8 +3,13 @@ module github.com/marmotherder/mimir
 go 1.12
 
 require (
-	github.com/Azure/azure-sdk-for-go v27.3.0+incompatible // indirect
-	github.com/Azure/go-autorest v12.0.0+incompatible // indirect
+	contrib.go.opencensus.io/exporter/ocagent v0.6.0 // indirect
+	github.com/Azure/azure-sdk-for-go v33.2.0+incompatible
+	github.com/Azure/go-autorest v13.0.1+incompatible
+	github.com/Azure/go-autorest/autorest v0.9.1
+	github.com/Azure/go-autorest/autorest/azure/auth v0.3.0
+	github.com/Azure/go-autorest/autorest/to v0.3.0 // indirect
+	github.com/Azure/go-autorest/autorest/validation v0.2.0 // indirect
 	github.com/DataDog/datadog-go v2.2.0+incompatible // indirect
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/SAP/go-hdb v0.14.1 // indirect
@@ -57,14 +62,11 @@ require (
 	github.com/pquerna/otp v1.1.0 // indirect
 	github.com/prometheus/common v0.3.0 // indirect
 	github.com/samuel/go-zookeeper v0.0.0-20180130194729-c4fab1ac1bec // indirect
+	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/spf13/pflag v1.0.3 // indirect
 	github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926 // indirect
 	github.com/ugorji/go v1.1.4 // indirect
 	go.etcd.io/etcd v3.3.12+incompatible // indirect
-	golang.org/x/crypto v0.0.0-20190418165655-df01cb2cc480 // indirect
-	golang.org/x/net v0.0.0-20190419010253-1f3472d942ba // indirect
-	google.golang.org/genproto v0.0.0-20190418145605-e7d98fc518a7 // indirect
-	google.golang.org/grpc v1.20.1 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce // indirect
 	k8s.io/api v0.0.0-20190620084959-7cf5895f2711
 	k8s.io/apimachinery v0.0.0-20190612205821-1799e75a0719
