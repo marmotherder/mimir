@@ -177,4 +177,80 @@ spec:
         - -h
         - {{ include "mimir.fullname" . }}-aws
 {{- end }}
+{{- if .Values.azure.enabled }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ include "mimir.fullname" . }}-azure
+  labels:
+    app: {{ include "mimir.fullname" . }}-azure
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ include "mimir.fullname" . }}-azure
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+    spec:
+      restartPolicy: Always
+      serviceAccountName: {{ .Values.serviceAccount }}
+      volumes:
+      - name: certs-init
+        configMap:
+          name: {{ include "mimir.fullname" . }}-azure
+      - name: certs
+        emptyDir: {}
+      initContainers:
+        - name: mimir-webhook-init
+          image: {{ .Values.webhook.initImage.repository }}:{{ .Values.webhook.initImage.tag }}
+          imagePullPolicy: {{ .Values.webhook.initImage.pullPolicy }}
+          env:
+          - name: RELEASE
+            value: {{ include "mimir.fullname" . }}-azure
+          volumeMounts:
+          - name: certs-init
+            mountPath: "/etc/certs/templates"
+            readOnly: true
+          - name: certs
+            mountPath: "/etc/certs/output"
+      containers:
+      {{ if .Values.azure.enabled }}
+      - name: {{ include "mimir.fullname" . }}-hook-azure
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: RELEASE
+          value: {{ include "mimir.fullname" . }}-azure
+        volumeMounts:
+        - name: certs
+          mountPath: "/etc/certs/output"
+          readOnly: true
+        args:
+        - -i
+        - -b
+        - azure
+        - -a
+        - {{ quote .Values.azure.auth }}
+        {{ if .Values.azure.subscriptionID }}
+        - -s
+        - {{ quote .Values.azure.subscriptionID }}
+        {{ end }}
+        {{ if .Values.azure.credentialsFilePath }}
+        - -f
+        - {{ quote .Values.azure.credentialsFilePath }}
+        {{ end }}
+      {{ end }}
+        - -o
+        - -c
+        - /etc/certs/output/server-cert.pem
+        - -l
+        - /etc/certs/output/server-key.pem
+        - -h
+        - {{ include "mimir.fullname" . }}-azure
+{{- end }}
 {{- end }}

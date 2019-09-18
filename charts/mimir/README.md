@@ -50,6 +50,10 @@ Secrets managed in AWS are based on tags. Create secrets in AWS as normal, but t
 | `aws.secretkey`                   | The AWS SECRET_ACCESS_KEY to use to authenticate with AWS                          | na                        | yes - if auth is `static`         |
 | `aws.path`                        | The path to an AWS shared credentials file                                         | na                        | no - optional if auth is `shared` |
 | `aws.profile`                     | The AWS profile to use                                                             | na                        | no - optional if auth is `shared` |
+| `azure.enabled`                   | Run sync with Azure Key Vault secrets                                              | `false`                   | yes                               |
+| `azure.auth`                      | Authentication to use with Azure - Options are `env` or `file`                     | `env`                     | yes                               |
+| `azure.subscriptionID`            | Azure subscription ID to use. Uses `AZURE_SUBSCRIPTION_ID` env variable if not set | na                        | no                                |
+| `azure.credentialsFilePath`       | The path to an Azure credentials file                                              | na                        | yes - if auth is `file`           |
 | `webhook.enabled`                 | Should mimir be deployed as a webhook server in the cluster                        | `false`                   | yes                               |
 | `webhook.failurePolicy`           | The k8s webhook policy to use, `Fail` or `Ignore` are supported                    | `Ignore`                  | yes - if webhook enabled          |
 | `webhook.initImage.repository`    | The repository of the mimir init image                                             | `marmotherder/mimir-init` | yes - if webhook enabled          |

@@ -76,7 +76,7 @@ func (auth HashicorpVaultApproleAuth) GetToken(client *api.Client) error {
 		return errors.New("No valid role id set")
 	}
 	if auth.SecretID == "" {
-		errors.New("No valid secret id set")
+		return errors.New("No valid secret id set")
 	}
 	vaultToken, err := client.Logical().Write("auth/approle/login", map[string]interface{}{"role_id": auth.RoleID, "secret_id": auth.SecretID})
 	if err != nil {

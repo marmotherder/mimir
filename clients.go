@@ -54,6 +54,21 @@ func loadClient() (clients.SecretsManagerClient, clients.SecretsManager, error) 
 		default:
 			return nil, "", errors.New("Unknown AWS authentication type")
 		}
+	case "azure":
+		var azOpts AzureKeyVaultOptions
+		parseArgs(&azOpts)
+		switch azOpts.Authentication {
+		case "env":
+			smc, mgr := loadAzureKeyVaultClient(opts, azOpts, &clients.AzureKeyVaultEnvironmentAuth{})
+			return smc, mgr, nil
+		case "file":
+			var azFileOpts AzureKeyVaultFileOptions
+			parseArgs(&azFileOpts)
+			smc, mgr := loadAzureKeyVaultClient(opts, azOpts, &clients.AzureKeyVaultFileAuth{BaseURI: azFileOpts.FilePath})
+			return smc, mgr, nil
+		default:
+			return nil, "", errors.New("Unknown Azure authentication type")
+		}
 	default:
 		return nil, "", errors.New("Failed to load a configured secrets backend properly")
 	}

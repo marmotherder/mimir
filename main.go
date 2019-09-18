@@ -95,6 +95,15 @@ func loadAWSClient(opts Options, awsOpts AWSOptions, auth clients.AWSSecretsAuth
 	return client, clients.AWS
 }
 
+// loadAzureKeyVaultClient loads a valid client for loading secrets from Azure Key Vaults
+func loadAzureKeyVaultClient(opts Options, azOpts AzureKeyVaultOptions, auth clients.AzureKeyVaultAuth) (smc clients.SecretsManagerClient, mgr clients.SecretsManager) {
+	client, err := clients.NewAzureKeyVaultClient(auth, azOpts.SubscriptionID)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	return client, clients.AWS
+}
+
 // run performs a run of mimir secret syncing for the given backend
 func run(opts Options, smc clients.SecretsManagerClient, mgr clients.SecretsManager) {
 	kc, err := clients.NewK8SClient(opts.IsPod, opts.KubeconfigPath)
