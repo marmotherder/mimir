@@ -28,6 +28,7 @@ Secrets managed in AWS are based on tags. Create secrets in AWS as normal, but t
 | Paramter                          | Description                                                                        | Default                   | Required                          |
 | --------------------------------- | ---------------------------------------------------------------------------------- | ------------------------- | --------------------------------- |
 | `serviceAccount`                  | The name of the service account to use for mimir                                   | `mimir-service-account`   | yes                               |
+| `extraPodLabels`                  | Extra k8s labels to add to the pod or the job or webhook deployment                | `{}`                      | no                                |
 | `job.enabled`                     | Should the cronjob be deployed to the cluster                                      | `false`                   | yes                               |
 | `job.schedule`                    | The cron schedule to run the sync                                                  | `*/5 * * * *`             | yes - If job enabled              |
 | `job.restartPolicy`               | Should the cronjob pods try to restart on failure                                  | `false`                   | yes - If job enabled              |
