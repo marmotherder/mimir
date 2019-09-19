@@ -18,6 +18,7 @@ spec:
         chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
         release: "{{ .Release.Name }}"
         heritage: "{{ .Release.Service }}"
+{{ toYaml .Values.extraPodLabels | indent 8 }}
     spec:
       restartPolicy: Always
       serviceAccountName: {{ .Values.serviceAccount }}
@@ -110,6 +111,7 @@ spec:
         chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
         release: "{{ .Release.Name }}"
         heritage: "{{ .Release.Service }}"
+{{ toYaml .Values.extraPodLabels | indent 8 }}
     spec:
       restartPolicy: Always
       serviceAccountName: {{ .Values.serviceAccount }}
@@ -196,6 +198,7 @@ spec:
         chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
         release: "{{ .Release.Name }}"
         heritage: "{{ .Release.Service }}"
+{{ toYaml .Values.extraPodLabels | indent 8 }}
     spec:
       restartPolicy: Always
       serviceAccountName: {{ .Values.serviceAccount }}

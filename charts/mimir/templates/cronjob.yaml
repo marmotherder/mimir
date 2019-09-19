@@ -16,6 +16,12 @@ spec:
         spec:
           restartPolicy: {{ quote .Values.job.restartPolicy }}
           serviceAccountName: {{ .Values.serviceAccount }}
+          labels:
+            app: {{ include "mimir.fullname" . }}
+            chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+            release: "{{ .Release.Name }}"
+            heritage: "{{ .Release.Service }}"
+{{ toYaml .Values.extraPodLabels | indent 12 }}
           containers:
           {{- if .Values.hashicorpVault.enabled }}
           - name: {{ include "mimir.fullname" . }}-hashicorpvault
@@ -78,7 +84,7 @@ spec:
             {{- end }}
             {{- if .Values.aws.profile }}
             - -f
-            - {{ .Values.aws.profile }}
+            - go bu
             {{- end }}
           {{- end }}
           {{- if .Values.azure.enabled }}

@@ -1,5 +1,6 @@
 # A service account with valid permissions must be installed before this chart
 serviceAccount: mimir-service-account
+extraPodLabels: {}
 
 job:
   enabled: false
