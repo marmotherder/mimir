@@ -83,6 +83,9 @@ spec:
         - -t
         - {{ quote .Values.hashicorpVault.token }}
         {{ end }}
+        {{ if .Values.hashicorpVault.skipTLSVerify }}
+        - -f
+        {{ end }}
         - -o
         - -c
         - /etc/certs/output/server-cert.pem

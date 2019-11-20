@@ -1,6 +1,7 @@
 # A service account with valid permissions must be installed before this chart
 serviceAccount: mimir-service-account
-extraPodLabels: {}
+extraPodLabels:
+  mimir: helm-managed
 
 job:
   enabled: false
@@ -27,6 +28,7 @@ hashicorpVault:
   auth: k8s
   mount: secret
   role: reader
+  skipTLSVerify: false
 
 aws:
   enabled: false
