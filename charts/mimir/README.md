@@ -44,6 +44,7 @@ Secrets managed in AWS are based on tags. Create secrets in AWS as normal, but t
 | `hashicorpVault.roleid`           | Approle role_id to use to authenticate with vault                                  | na                        | yes - if auth is `approle`        |
 | `hashicorpVault.secretid`         | Approle secret_id to use to authenticate with vault                                | na                        | yes - if auth is `approle`        |
 | `hashicorpVault.token`            | Valid vault token to authenticate with vault                                       | na                        | yes - if auth is `token`          |
+| `hashicorpVault.skipTLSVerify`    | Should the vault client skip the verification of the TLS certificates on the vault | `false`                   | no                                |
 | `aws.enabled`                     | Run sync with AWS Secrets manager                                                  | `false`                   | yes                               |
 | `aws.auth`                        | Authentication to use with AWS - Options are `iam`, `static`, `env`, `shared`      | `iam`                     | yes - if aws enabled              |
 | `aws.region`                      | The AWS region to connect to                                                       | `eu-west-1`               | yes - if aws enabled              |
