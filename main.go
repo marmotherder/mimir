@@ -78,7 +78,7 @@ func parseArgs(opts interface{}) {
 
 // loadHashiCorpVaultClient loads a valid client for loading secrets from Hashicorp Vault
 func loadHashiCorpVaultClient(opts Options, hvOpts HashiCorpVaultOptions, auth clients.HashicorpVaultAuth) (smc clients.SecretsManagerClient, mgr clients.SecretsManager) {
-	client, err := clients.NewHashicorpVaultClient(hvOpts.Path, hvOpts.URL, hvOpts.Mount, auth)
+	client, err := clients.NewHashicorpVaultClient(hvOpts.Path, hvOpts.URL, hvOpts.Mount, hvOpts.SkipTLSVerify, auth)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

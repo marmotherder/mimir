@@ -1,9 +1,11 @@
 package clients
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
 	"sync"
@@ -19,9 +21,14 @@ type hashicorpVaultClient struct {
 }
 
 // NewHashicorpVaultClient provides a new SecretsManagerClient for using Hashicorp Vault
-func NewHashicorpVaultClient(path, url, mount string, auth HashicorpVaultAuth) (SecretsManagerClient, error) {
+func NewHashicorpVaultClient(path, url, mount string, skipTLSVerify bool, auth HashicorpVaultAuth) (SecretsManagerClient, error) {
 	client, err := api.NewClient(&api.Config{
 		Address: url,
+		HttpClient: &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: skipTLSVerify},
+			},
+		},
 	})
 	if err != nil {
 		return nil, err

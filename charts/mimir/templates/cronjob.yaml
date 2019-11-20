@@ -57,6 +57,9 @@ spec:
             - -t
             - {{ .Values.hashicorpVault.token }}
             {{- end }}
+            {{ if .Values.hashicorpVault.skipTLSVerify }}
+            - -f
+            {{ end }}
           {{- end }}
           {{- if .Values.aws.enabled }}
           - name: {{ include "mimir.fullname" . }}-aws

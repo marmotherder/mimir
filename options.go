@@ -22,6 +22,7 @@ type HashiCorpVaultOptions struct {
 	URL            string `short:"u" long:"url" description:"The base URL to the Hashicorp Vault instance" required:"true"`
 	Mount          string `short:"m" long:"mount" description:"Which mount to attach to in the vault" required:"true"`
 	Path           string `short:"p" long:"path" description:"Optional to provide a root path within the mount on where to look for secrets"`
+	SkipTLSVerify  bool   `short:"f" long:"skip" description:"Optional flag to specify if https calls to vault should verify the TLS certificate chain"`
 }
 
 // HashicorpVaultK8SOptions allows providing the Hashicorp Vault role to bind to via the CLI
